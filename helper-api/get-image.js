@@ -9,7 +9,7 @@ const apiSecret = process.env.API_SECRET;
 const getColors = (imgUrl, aSid, mSid) => {
     console.log("I made it!")
 
-    return axios.get('https://api.twilio.com/2010-04-01/Accounts/ACacb3245f26dc428343e4f1cdd89bfbce/Messages/MM3b87fd30f696a1669ff7ce6a0f62cbf6/Media/ME9d4c43e9347399e3e8bb10584e5ac407')
+    return axios.get(process.env.TESTER__LINK)
         .then(resp => {
             return resp.request.res.responseUrl
         })
