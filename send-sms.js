@@ -17,7 +17,7 @@ const authToken = process.env.AUTH_TOKEN;
 
 const twilio = require('twilio')(accountSid, authToken);
 
-app.post('/welcome', async (req, res) => {
+app.post('/picToBMColor', async (req, res) => {
 	twilio.messages.list({to: process.env.TWILIO_NUMBER})
 		.then(messages => {
 			colorApi.getColors('https://api.twilio.com/2010-04-01', messages[0].accountSid, messages[0].sid)
