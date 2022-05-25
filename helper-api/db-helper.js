@@ -10,15 +10,12 @@ const connection = mongoClient.connect(dburl, function(err, client) {
     if (err) {
         console.log('Error connecting to db', err);
     } else {
-        console.error('We are connected to the db!');
+        console.log('We are connected to the db!');
         dbConnection = client.db('BENJAMIN_MOORE_PAINT')
-        // getColorsFromBenjaminMoore()
       }
 })
 
 const connectToDb = () => {
-    // console.log("does dbConnection have a value yet?", dbConnection)
-
     return dbConnection;
 }
 
@@ -30,12 +27,13 @@ const getColorsFromBenjaminMoore = async () => {
             a.forEach(colorObj => {
                 const hex = colorObj.hex.toLowerCase()
                 let rgb = convertHexToRGB(hex);
-                dbConnection.collection("paint_colors").insertOne({_id: hex, name: colorObj.name, r: rgb[0], g: rgb[1], b: rgb[2]}, (err, res) => {
+                dbConnection.collection("paint_colors").insertOne({_id: hex, name: colorObj.name, r: rgb[0], g: rgb[1], b: rgb[2], number: colorObj.number}, (err, res) => {
                     if(err) return err;
                 });
                 counter++
             })
             console.log(`${counter} colors added to the paint_collection`)
+            return counter
         })
         .catch((error) => {
             console.log(error);

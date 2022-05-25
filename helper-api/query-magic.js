@@ -1,9 +1,4 @@
-// need to create a query function that will grab a range of paint colors if there is not an exact match
-// need to import db for the actual queries
-// export function for reqult grabbing
-
 const db = require('./db-helper');
-
 
 const firstColorCheck = function(subArrOfColors){
     let result = false;
@@ -16,11 +11,11 @@ const firstColorCheck = function(subArrOfColors){
             result = true;
         }
     })
-    return result
-    // return result? result : null;
+    return result;
 }
 
-async function queryMagic(rbgArr){
+async function queryMagic(foregroundColorArr){
+    let rbgArr = foregroundColorArr[0][1];
     const possibleColorsArr = [];
     let similarColors = await db.connectToDb().collection('paint_colors')
         .find({$and : [
@@ -33,9 +28,9 @@ async function queryMagic(rbgArr){
             {
                 g: {$gt: rbgArr[2] - 20, $lt: rbgArr[2] + 20}
             }
-        ]}).toArray()
+        ]}).toArray();
 
-    similarColors.forEach(color => possibleColorsObj.push(color.name))
+    similarColors.forEach(color => possibleColorsArr.push([color.name, color.number]))
     return possibleColorsArr;
 }
 
