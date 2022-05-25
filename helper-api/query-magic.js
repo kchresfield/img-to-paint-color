@@ -6,7 +6,6 @@ const firstColorCheck = function(subArrOfColors){
         console.log("colorArr: ", colorArr)
         let resultColor = db.connectToDb().collection('paint_colors')
             .findOne({_id: colorArr[0]})
-        console.log("result: ", resultColor)
         if(resultColor){
             result = true;
         }
@@ -28,9 +27,9 @@ async function queryMagic(foregroundColorArr){
             {
                 g: {$gt: rbgArr[2] - 20, $lt: rbgArr[2] + 20}
             }
-        ]}).toArray();
+        ]}).limit(5).toArray();
 
-    similarColors.forEach(color => possibleColorsArr.push([color.name, color.number]))
+    similarColors.forEach(color => possibleColorsArr.push([color.name, color.number]));
     return possibleColorsArr;
 }
 

@@ -26,9 +26,9 @@ const getColors = (imgUrl, aSid, mSid) => {
         })
         .then(resp => {
             let jsonResp = JSON.parse(resp)
-            let backgroundCodes = jsonResp.result.colors.background_colors.map(colors => [colors.html_code.slice(1), [colors.r, colors.b, colors.g]])
-            let foregroundColorCodes = jsonResp.result.colors.foreground_colors.map(colors => [colors.html_code.slice(1), [colors.r, colors.b, colors.g]])
-            return {backgroundCodes, foregroundColorCodes}
+            let backgroundCodes = jsonResp.result.colors.background_colors.map(colors => [colors.html_code.slice(1), [colors.r, colors.b, colors.g]]);
+            let foregroundColorCodes = jsonResp.result.colors.foreground_colors.map(colors => [colors.html_code.slice(1), [colors.r, colors.b, colors.g]]);
+            return {backgroundCodes, foregroundColorCodes};
         })
         .catch((error) => {
             return error;
