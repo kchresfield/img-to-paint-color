@@ -1,22 +1,16 @@
 {
-  "name": "who-knows",
+  "name": "img-to-paint-color",
   "version": "0.0.0",
   "private": true,
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "twilio-run",
-    "deploy": "twilio-run deploy"
-  },
+  "scripts": {},
   "dependencies": {
     "@twilio/runtime-handler": "1.2.2",
-    "axios": "0.26.0",
+    "bluebird": "3.7.2",
     "dotenv": "16.0.0",
     "express": "4.17.3",
     "got": "10.7.0",
-    "jquery": "3.6.0",
     "mongo": "0.1.0",
     "mongodb": "4.5.0",
-    "mongoose": "6.3.1",
     "superagent": "7.1.1",
     "twilio": "^3.56"
   },

@@ -1,44 +1,106 @@
 require('dotenv').config();
 
-const axios = require('axios');
-const mongoClient = require('mongodb').MongoClient;
+const dummyData = require('./dummy-data');
 
-const dburl = 'mongodb://127.0.0.1:27017';
+const got = require('got');
+const BluebirdPromise = require('bluebird')
+const MongoClient = require('mongodb').MongoClient;
+
+const databaseName = 'BENJAMIN_MOORE_PAINT';
+const collectionName = 'paint_colors';
 let dbConnection;
-const connection = mongoClient.connect(dburl, function(err, client) {
+let db;
 
-    if (err) {
-        console.log('Error connecting to db', err);
-    } else {
-        console.log('We are connected to the db!');
-        dbConnection = client.db('BENJAMIN_MOORE_PAINT')
-      }
-})
-
-const connectToDb = () => {
+async function connectToTheDB(){
+    const dbUri = 'mongodb://127.0.0.1:27017';
+    db = await MongoClient.connect(dbUri);
+    dbConnection = db.db(databaseName);
     return dbConnection;
 }
 
-const getColorsFromBenjaminMoore = async () => {
-    let a = await axios.get('https://www.benjaminmoore.com/api/colors')
+async function populateMongoDb(){
+    const dbUri = `mongodb://127.0.0.1:27017/${databaseName}`;
+
+    try{
+        db = await MongoClient.connect(dbUri);
+        dbConnection = db.db(databaseName);
+        await dbConnection.createCollection(collectionName);
+        let counter = await getColorsFromBenjaminMoore1();
+    } catch (err){
+        console.log(err);
+        throw(err);
+    } finally {
+        db.close();
+    }
+}
+
+async function dropDb(){
+    const dbUri = `mongodb://127.0.0.1:27017/${databaseName}`;
+    let db = await MongoClient.connect(dbUri);
+    let connectionToDb = db.db(databaseName)
+    let dropped = await connectionToDb.dropDatabase();
+    console.log(`Dropped ${databaseName} database`, dropped)
+    db.close()
+}
+
+
+const getColorsFromBenjaminMoore = () => {
+    return got('https://www.benjaminmoore.com/api/colors')
         .then(bulkResp => {
-            let a = Object.values(bulkResp.data.colors)
+            const jsonResp = JSON.parse(bulkResp.body);
+            const paintVals = Object.values(jsonResp.colors);
             let counter = 0;
-            a.forEach(colorObj => {
+            paintVals.forEach( colorObj => {
                 const hex = colorObj.hex.toLowerCase()
                 let rgb = convertHexToRGB(hex);
-                dbConnection.collection("paint_colors").insertOne({_id: hex, name: colorObj.name, r: rgb[0], g: rgb[1], b: rgb[2], number: colorObj.number}, (err, res) => {
-                    if(err) return err;
+                dbConnection.collection(collectionName).insertOne({hex: hex, name: colorObj.name, r: rgb[0], g: rgb[1], b: rgb[2], number: colorObj.number}, (err, res) => {
+                    if(err) console.log("this is the eror", err);
                 });
                 counter++
             })
             console.log(`${counter} colors added to the paint_collection`)
-            return counter
+        })
+        .then(resp => {
+            setTimeout(() => {
+                db.close()
+            }, 2000)
         })
         .catch((error) => {
             console.log(error);
         });
-    return a;
+}
+
+async function getColorsFromBenjaminMoore1 () {
+    try{
+        const bmDataRaw = await got('https://www.benjaminmoore.com/api/colors');
+        const jsonResp = JSON.parse(bmDataRaw.body);
+        const paintVals = Object.values(jsonResp.colors);
+
+        let counter = 0;
+
+        await BluebirdPromise.each(paintVals, async (colorObj) => {
+            const hex = colorObj.hex.toLowerCase();
+            let rgb = convertHexToRGB(hex);
+            await dbConnection.collection(collectionName).insertOne({ hex: hex, name: colorObj.name, r: rgb[0], g: rgb[1], b: rgb[2], number: colorObj.number});
+            counter++; 
+        });
+
+        console.log(`${counter} colors added to the ${collectionName} collection`);
+
+        return counter;
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+async function addValuesToDb(values) {
+    paintVals.forEach(colorObj => {
+        const hex = colorObj.hex.toLowerCase();
+        let rgb = convertHexToRGB(hex);
+        dbConnection.collection(collectionName).insertOne({ hex: hex, name: colorObj.name, r: rgb[0], g: rgb[1], b: rgb[2], number: colorObj.number});
+        counter++;
+    });
 }
 
 const convertHexToRGB = hex => {
@@ -56,8 +118,15 @@ const convertHexToRGB = hex => {
     return [r, g, b];
 }
 
+const connectToDb = () => {
+    return dbConnection;
+}
+
+populateMongoDb();
+// connectToTheDB()
+// dropDb()
+
+
 module.exports = {
-    connectToDb,
-    convertHexToRGB,
-    getColorsFromBenjaminMoore
+    connectToDb
 }

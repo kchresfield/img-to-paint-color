@@ -33,10 +33,6 @@ async function queryMagic(foregroundColorArr){
     return possibleColorsArr;
 }
 
-// gt and lt are greater than and less than. Will be used for RGB
-// will query range of 30 for each r, g, and b
-// add each hex and name to an obj, if there's overlap, no worries because cant have same key twice
-
 module.exports = {
     queryMagic,
     firstColorCheck
